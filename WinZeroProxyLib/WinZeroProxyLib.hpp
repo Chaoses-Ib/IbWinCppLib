@@ -1,19 +1,29 @@
 ﻿#include "pch.h"
+#include <cstdint>
 #include <iterator>
 
 namespace zp {
+    using wchar = wchar_t;
+    using byte_t = uint8_t;
+    using QWORD = uint64_t;
+
     //An iterator for ::FindWindowExW.
-    class FindWindowEx_i : public std::iterator<std::input_iterator_tag, HWND, size_t, void, void> {
+    class FindWindowEx_i {
         using iterator = FindWindowEx_i;
+        using iterator_category = std::input_iterator_tag;
+        using value_type = HWND;
+        using difference_type = size_t;
+        using pointer = void;
+        using reference = void;
 
         HWND parent;
         HWND current;
-        const wchar_t* classname;
-        const wchar_t* title;
-        FindWindowEx_i(HWND parent, HWND current, const wchar_t* classname, const wchar_t* title)
+        const wchar* classname;
+        const wchar* title;
+        FindWindowEx_i(HWND parent, HWND current, const wchar* classname, const wchar* title)
             : parent(parent), current(current), classname(classname), title(title) {}
     public:
-        FindWindowEx_i(HWND parent = 0, const wchar_t* classname = nullptr, const wchar_t* title = nullptr)
+        FindWindowEx_i(HWND parent = 0, const wchar* classname = nullptr, const wchar* title = nullptr)
             : FindWindowEx_i(parent, FindWindowExW(parent, 0, classname, title), classname, title) {}
         FindWindowEx_i(const iterator& i) : FindWindowEx_i(i.parent, i.current, i.classname, i.title) {}
 

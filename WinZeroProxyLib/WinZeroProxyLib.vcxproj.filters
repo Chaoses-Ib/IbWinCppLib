@@ -29,5 +29,8 @@
     <ClCompile Include="WinZeroProxyLib.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WinZeroProxyLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
