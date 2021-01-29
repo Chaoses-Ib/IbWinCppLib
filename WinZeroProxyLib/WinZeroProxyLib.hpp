@@ -7,14 +7,20 @@ namespace zp {
     using byte_t = uint8_t;
     using QWORD = uint64_t;
 
-    //An iterator for ::FindWindowExW.
-    class FindWindowEx_i {
+    //Alternative std::iterator
+    template<typename TCategory, typename TValue, typename TDiff = ptrdiff_t, typename TPointer = TValue*, typename TReference = TValue&>
+    class iterator {
+    public:
+        using iterator_category = TCategory;
+        using value_type = TValue;
+        using difference_type = TDiff;
+        using pointer = TPointer;
+        using reference = TReference;
+    };
+
+    //An iterator for ::FindWindowExW
+    class FindWindowEx_i : public iterator<std::input_iterator_tag, HWND, size_t, void, void> {
         using iterator = FindWindowEx_i;
-        using iterator_category = std::input_iterator_tag;
-        using value_type = HWND;
-        using difference_type = size_t;
-        using pointer = void;
-        using reference = void;
 
         HWND parent;
         HWND current;
