@@ -26,10 +26,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WinZeroProxyLib.hpp">
+    <ClCompile Include="WinCppLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WinZeroProxyLib.cpp">
+    <ClCompile Include="WinCppLib.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
