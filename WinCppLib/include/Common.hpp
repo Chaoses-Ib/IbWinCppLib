@@ -7,6 +7,9 @@
 #include <functional>
 #include <optional>
 
+//For forcing MSVC to evaluate a const expression at compile time
+#define CONSTEXPR(kv) ib::as_constexpr<decltype(kv),kv>
+
 namespace ib {
     using wchar = wchar_t;
     using byte_t = uint8_t;
@@ -26,6 +29,11 @@ namespace ib {
         using pointer = TPointer;
         using reference = TReference;
     };
+
+    //For forcing MSVC to evaluate a const expression at compile time
+    //Alternative: CONSTEXPR
+    template<typename T, T A>
+    constexpr T as_constexpr = A;
 
     //A simple wrapper for TChar*
     //Could be nullptr
