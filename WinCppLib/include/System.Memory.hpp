@@ -2,7 +2,7 @@
 #include "Common.hpp"
 
 namespace ib {
-    using offset_t = int32_t; //since size_t can't be negative
+    using offset_t = int32_t;  //since size_t can't be negative
 
     struct addr {
         void* p;
