@@ -108,6 +108,6 @@ namespace ib {
     IB_GENERATE_AUTO_XX_CAST(const_cast);
     IB_GENERATE_AUTO_XX_CAST(dynamic_cast);
     IB_GENERATE_AUTO_XX_CAST(reinterpret_cast);
-#undef AUTO_CAST
+#undef IB_GENERATE_AUTO_XX_CAST
 
 }
