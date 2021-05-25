@@ -2,61 +2,123 @@
 #include "Common.hpp"
 
 namespace ib {
-    using offset_t = int32_t;  //since size_t can't be negative
+    using Offset = intptr_t;  // size_t can't be negative
 
-    struct addr {
+    class Addr {
+    public:
         void* p;
 
-        addr(void* p) : p(p) { }
-        addr(byte_t* p) : p(p) { }
+        Addr(void* p) : p(p) { }
+        Addr(uintptr_t p) : p((void*)p) { }
 
-        operator void* () {
-            return p;
-        }
-        operator byte_t* () {
-            return (byte_t*)p;
-        }
         template<typename T>
         operator T* () {
             return (T*)p;
         }
-#ifdef _WIN64
-        explicit operator uint64_t() {
-            return (uint64_t)p;
-        }
-#else
-        explicit operator uint32_t() {
-            return (uint32_t)p;
-        }
-#endif
 
-        //It doesn't modify *this, but return a new addr.
-        addr offset(offset_t offset) {
-            return addr((byte_t*)p + offset);
-        }
-        addr operator+(offset_t offset) {
-            return this->offset(offset);
-        }
-        addr operator-(offset_t offset) {
-            return this->offset(-offset);
+        // For method chaining. Same as operator T*().
+        // Non-static data members can't have templates, so it has to be a function.
+        template<typename T>
+        T* ptr() {
+            return (T*)p;
+        };
+
+        explicit operator uintptr_t() {
+            return (uintptr_t)p;
         }
 
-        bool Unprotected(size_t size, function<bool(addr)> f) {
-            DWORD old_protect;
-            if (!VirtualProtect(p, size, PAGE_EXECUTE_READWRITE, &old_protect))  //#TODO
-                return false;
-            bool success = f(*this);
-            //lpflOldProtect can't be nullptr
-            return VirtualProtect(p, size, old_protect, &old_protect) && success;  //avoid short-circuit evaluation
+
+
+        Addr operator+(Offset offset) const {
+            return (Byte*)p + offset;
+        }
+        Addr operator-(Offset offset) const {
+            return (Byte*)p - offset;
         }
 
-        bool Unprotected(size_t size, function<void(addr)> f) {
-            DWORD old_protect;
-            if (!VirtualProtect(p, size, PAGE_EXECUTE_READWRITE, &old_protect))  //#TODO
-                return false;
-            f(*this);
-            return VirtualProtect(p, size, old_protect, &old_protect);  //lpflOldProtect can't be nullptr
+        // For method chaining. Same as operator+().
+        [[nodiscard]] Addr offset(Offset offset) {
+            return *this + offset;
         }
 
+        //Equals to offset(sizeof(T) * num).
+        template<typename T>
+        [[nodiscard]] Addr offset(size_t num = 1) {
+            return offset(sizeof(T) * num);
+        }
+
+        Addr& operator+=(Offset offset) {
+            p = (Byte*)p + offset;
+            return *this;
+        }
+        Addr& operator-=(Offset offset) {
+            p = (Byte*)p - offset;
+            return *this;
+        }
+
+        // Read the pointer at (p + offset).
+        // addr[off] equals to *(Addr*)(addr + off). ([addr + off] in assembly language)
+        Addr operator[](Offset offset) const {
+            return *(void**)(*this + offset);
+        }
+        
+
+
+        // Check nullptr.
+        operator bool() {
+            return p;
+        }
+
+        Offset operator-(Addr addr) {
+            return (intptr_t)p - (intptr_t)addr.p;
+        }
+
+        auto operator<=>(const Addr addr) const {
+            return p <=> addr.p;
+        }
+
+
+
+        [[nodiscard]] Addr align_up(size_t alignment) {
+            --alignment;
+            return ((uintptr_t)p + alignment) & ~alignment;
+        }
+        [[nodiscard]] Addr align_down(size_t alignment) {
+            --alignment;
+            return (uintptr_t)p & ~alignment;
+        }
+
+
+
+        template<typename T>
+        T read() {
+            return *(T*)p;
+        }
+
+        auto read() {
+            return read_return_auto{ *this };
+        }
+    private:
+        struct read_return_auto {
+            Addr& addr;
+
+            template<typename T>
+            operator T() {
+                return addr.read<T>();
+            }
+        };
+    public:
+
+        template<typename T>
+        void write(T value) {
+            *(T*)p = value;
+        }
+
+        
+
+        // Return (size_t)-1 if fails.
+        size_t heap_size(HANDLE heap = GetProcessHeap()) {
+            return HeapSize(heap, 0, p);
+        }
     };
 }
