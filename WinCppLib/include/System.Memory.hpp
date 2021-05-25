@@ -121,4 +121,56 @@ namespace ib {
             return HeapSize(heap, 0, p);
         }
     };
+
+    namespace mem {
+        // **It does not equal to Windows's flProtect.**
+        using ProtectFlags = DWORD;
+        class Protect {
+        public:
+            using T = const ProtectFlags;
+            static T NoAccess = PAGE_NOACCESS - 1;  // false (otherwise true)
+            static T Read = PAGE_READONLY - 1;
+            static T Write = PAGE_READWRITE - 1;  // Include Read
+            static T WriteCopy = PAGE_WRITECOPY - 1;  // Include Read and Write
+
+            static T Execute = PAGE_EXECUTE;
+
+            static T Guard = PAGE_GUARD;
+            static T NoCache = PAGE_NOCACHE;
+            static T WriteCombine = PAGE_WRITECOMBINE;
+
+            static DWORD to_flProtect(ProtectFlags protect) {
+                ++protect;
+                if (protect & Execute) {
+                    protect = (protect & ~0xFF) | (protect & 0xFF) << 4;
+                }
+                return protect;
+            }
+
+            static ProtectFlags to_protect(DWORD flProtect) {
+                --flProtect;
+                if (flProtect & 0x8) {
+                    flProtect = flProtect >> 4 | Execute;
+                }
+                return flProtect;
+            }
+        };
+
+        // Example: change_protect(addr, 5, Protect::Write | Protect::Execute);
+        ProtectFlags change_protect(Addr addr, size_t size, ProtectFlags protect) {
+            DWORD flProtect = PAGE_NOACCESS;
+            VirtualProtect(addr, size, Protect::to_flProtect(protect), &flProtect);
+            return Protect::to_protect(flProtect);
+        }
+
+        // Change protect, call f, and then change protect back.
+        bool protect_changed(Addr addr, size_t size, ProtectFlags protect, function<void(Addr)> f) {
+            DWORD flProtect;
+            if (!VirtualProtect(addr, size, Protect::to_flProtect(protect), &flProtect))
+                return false;
+            f(addr);
+            //lpflOldProtect can't be nullptr
+            return VirtualProtect(addr, size, flProtect, &flProtect);
+        }
+    }
 }
