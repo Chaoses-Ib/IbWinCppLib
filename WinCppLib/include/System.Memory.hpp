@@ -6,10 +6,10 @@ namespace ib {
 
     class Addr {
     public:
-        void* p;
+        Byte* p;
 
-        Addr(void* p) : p(p) { }
-        Addr(uintptr_t p) : p((void*)p) { }
+        Addr(void* p) : p((Byte*)p) { }
+        Addr(uintptr_t p) : p((Byte*)p) { }
 
         template<typename T>
         operator T* () {
@@ -30,36 +30,36 @@ namespace ib {
 
 
         Addr operator+(Offset offset) const {
-            return (Byte*)p + offset;
+            return p + offset;
         }
         Addr operator-(Offset offset) const {
-            return (Byte*)p - offset;
+            return p - offset;
         }
 
         // For method chaining. Same as operator+().
         [[nodiscard]] Addr offset(Offset offset) {
-            return *this + offset;
+            return p + offset;
         }
 
         //Equals to offset(sizeof(T) * num).
         template<typename T>
         [[nodiscard]] Addr offset(size_t num = 1) {
-            return offset(sizeof(T) * num);
+            return p + sizeof(T) * num;
         }
 
         Addr& operator+=(Offset offset) {
-            p = (Byte*)p + offset;
+            p += offset;
             return *this;
         }
         Addr& operator-=(Offset offset) {
-            p = (Byte*)p - offset;
+            p -= offset;
             return *this;
         }
 
         // Read the pointer at (p + offset).
         // addr[off] equals to *(Addr*)(addr + off). ([addr + off] in assembly language)
         Addr operator[](Offset offset) const {
-            return *(void**)(*this + offset);
+            return *(void**)(p + offset);
         }
         
 
@@ -70,7 +70,7 @@ namespace ib {
         }
 
         Offset operator-(Addr addr) {
-            return (intptr_t)p - (intptr_t)addr.p;
+            return p - addr.p;
         }
 
         auto operator<=>(const Addr addr) const {
