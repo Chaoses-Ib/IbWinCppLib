@@ -64,17 +64,13 @@ namespace ib {
         
 
 
-        // Check nullptr.
-        operator bool() {
+        // Function as operator bool, operator<=>, operator delete
+        operator void* () const {
             return p;
         }
 
         Offset operator-(Addr addr) {
             return p - addr.p;
-        }
-
-        auto operator<=>(const Addr addr) const {
-            return p <=> addr.p;
         }
 
 
