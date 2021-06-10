@@ -153,14 +153,14 @@ namespace ib {
         };
 
         // Example: change_protect(addr, 5, Protect::Write | Protect::Execute);
-        ProtectFlags change_protect(Addr addr, size_t size, ProtectFlags protect) {
+        inline ProtectFlags change_protect(Addr addr, size_t size, ProtectFlags protect) {
             DWORD flProtect = PAGE_NOACCESS;
             VirtualProtect(addr, size, Protect::to_flProtect(protect), &flProtect);
             return Protect::to_protect(flProtect);
         }
 
         // Change protect, call f, and then change protect back.
-        bool protect_changed(Addr addr, size_t size, ProtectFlags protect, function<void(Addr)> f) {
+        inline bool protect_changed(Addr addr, size_t size, ProtectFlags protect, function<void(Addr)> f) {
             DWORD flProtect;
             if (!VirtualProtect(addr, size, Protect::to_flProtect(protect), &flProtect))
                 return false;
