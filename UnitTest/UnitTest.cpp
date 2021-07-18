@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "CppUnitTest.h"
-#include "../WinCppLib/include/WinCppLib.hpp"
+#include "IbWinCppLib/WinCppLib.hpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace ib;

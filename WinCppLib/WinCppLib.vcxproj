@@ -157,11 +157,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="include\Common.hpp" />
-    <ClInclude Include="include\System.Dll.hpp" />
-    <ClInclude Include="include\System.Memory.hpp" />
-    <ClInclude Include="include\WinCppLib.hpp" />
-    <ClInclude Include="include\WindowsAndMessages.hpp" />
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\Common.hpp" />
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\System.Dll.hpp" />
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\System.Memory.hpp" />
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\WinCppLib.hpp" />
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\WindowsAndMessages.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +172,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WinCppLib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IbWinCppLib\IbWinCppLib.props" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

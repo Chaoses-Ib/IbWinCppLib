@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include "..\WinCppLib\include\WinCppLib.hpp"
+#include "IbWinCppLib/WinCppLib.hpp"
 
 using namespace std;
 using namespace ib;

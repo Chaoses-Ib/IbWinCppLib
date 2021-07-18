@@ -24,19 +24,19 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\WinCppLib.hpp">
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\Common.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Common.hpp">
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\System.Dll.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\WindowsAndMessages.hpp">
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\System.Memory.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\System.Memory.hpp">
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\WinCppLib.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\System.Dll.hpp">
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\WindowsAndMessages.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,5 +47,8 @@
     <ClCompile Include="WinCppLib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IbWinCppLib\IbWinCppLib.props" />
   </ItemGroup>
 </Project>
