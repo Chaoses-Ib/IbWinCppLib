@@ -11,6 +11,51 @@
 #define CONSTEXPR(kv) ib::as_constexpr<decltype(kv),kv>
 
 namespace ib {
+#pragma region MacroVariables
+    namespace macros {
+        //_DEBUG
+        const bool _debug =
+#ifdef _DEBUG
+            true;
+#else
+            false;
+#endif
+
+        //NDEBUG
+        const bool ndebug =
+#ifdef NDEBUG
+            true;
+#else
+            false;
+#endif
+
+        //_WIN32
+        const bool _win32 =
+#ifdef _WIN32
+            true;
+#else
+            false;
+#endif
+
+        //_WIN64
+        const bool _win64 =
+#ifdef _WIN64
+            true;
+#else
+            false;
+#endif
+    }
+
+    const bool debug_runtime = macros::_debug;
+    const bool debug_assert = macros::ndebug;
+
+    //32-bit Windows (x86 or 32-bit ARM)
+    const bool os_win32 = macros::_win32 && !macros::_win64;
+    //64-bit Windows (x64 or 64-bit ARM)
+    const bool os_win64 = macros::_win64;
+
+#pragma endregion
+
     using wchar = wchar_t;
     using Byte = uint8_t;  //since there is std::byte
     using QWORD = uint64_t;
