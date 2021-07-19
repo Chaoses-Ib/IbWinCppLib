@@ -4,6 +4,28 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace ib;
+using namespace std::literals;
+
+namespace FileSystemsTest
+{
+	TEST_CLASS(PathTest)
+	{
+	public:
+		TEST_METHOD(TestRealPath)
+		{
+			Assert::AreEqual(LR"(C:\Users)"s, get_realpath(LR"(C:\Documents and Settings)"));
+			Assert::AreEqual(LR"(C:\Users)"s, get_realpath(LR"(C:\Documents and Settings\)"));
+			Assert::AreEqual(LR"(\\?\C:\Users)"s, get_realpath(LR"(C:\Documents and Settings)", false));
+
+			//junctions
+			Assert::AreEqual(LR"(C:\Users\desktop.ini)"s, get_realpath(LR"(C:\Documents and Settings\desktop.ini)"));
+			Assert::AreEqual(LR"(C:\Users\Default)"s, get_realpath(LR"(C:\Documents and Settings\Default User)"));
+
+			//symbolic links
+			Assert::AreEqual(LR"(C:\Users\Public\Desktop\desktop.ini)"s, get_realpath(LR"(C:\Documents and Settings\All Users\Desktop\desktop.ini)"));
+		}
+	};
+}
 
 namespace MemoryTest
 {
