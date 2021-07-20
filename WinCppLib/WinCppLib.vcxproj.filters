@@ -42,6 +42,9 @@
     <ClInclude Include="IbWinCppLib\include\IbWinCppLib\FileSystems.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="IbWinCppLib\include\IbWinCppLib\Diagnostics.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
