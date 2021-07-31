@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <Windows.h>
 #include <cstdint>
 
@@ -63,6 +63,72 @@ namespace ib {
     using std::function;
     using std::optional, std::nullopt;
     using std::wstring;
+
+
+
+    template<typename T>
+    class Holder;
+
+    template<>
+    class Holder<void> {
+    public:
+        struct DefaultT {} static inline Default;
+    };
+
+    template<typename T>
+    class Holder {
+        union {
+            unsigned char buf[sizeof T];
+            T v;
+        };
+
+    public:
+#pragma warning(suppress : 26495)  //MEMBER_UNINIT
+        Holder() {}
+        ~Holder() {}
+
+        Holder(Holder<void>::DefaultT) {
+            new(buf) T();
+        }
+
+        template<typename... Ts>
+        Holder(Ts&&... args) {
+            new(buf) T(std::forward<Ts>(args)...);
+        }
+
+        template<typename... Ts>
+        void create(Ts&&... args) {
+            new(buf) T(std::forward<Ts>(args)...);
+        }
+
+        void destroy() {
+            v.~T();
+        }
+
+        template<typename... Ts>
+        void recreate(Ts&&... args) {
+            destroy();
+            new(buf) T(std::forward<Ts>(args)...);
+        }
+
+        T* operator->() {
+            return &v;
+        }
+
+        const T* operator->() const {
+            return &v;
+        }
+
+        T& operator*() {
+            return v;
+        }
+
+        const T& operator*() const {
+            return v;
+        }
+    };
+
+
 
     //Alternative std::iterator
     template<typename TCategory, typename TValue, typename TDiff = ptrdiff_t, typename TPointer = TValue*, typename TReference = TValue&>

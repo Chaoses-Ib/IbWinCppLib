@@ -6,6 +6,71 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace ib;
 using namespace std::literals;
 
+namespace CommonTest
+{
+	TEST_CLASS(HolderTest)
+	{
+	public:
+		struct RaiiClass {
+			static inline int count = 0;
+
+			RaiiClass() { count++; }
+			RaiiClass(int count) { this->count = count; }
+			void inc() { count++; }
+			void dec() { count--; }
+			~RaiiClass() { count--; }
+		};
+
+		TEST_METHOD(TestHold)
+		{
+			{
+				Holder<RaiiClass> obj;
+				Assert::AreEqual(0, obj->count);
+
+				obj.create();
+				Assert::AreEqual(1, obj->count);
+
+				obj->inc();
+				Assert::AreEqual(2, obj->count);
+
+				obj.recreate();
+				Assert::AreEqual(2, obj->count);
+
+				obj.destroy();
+				Assert::AreEqual(1, obj->count);
+			}
+			Assert::AreEqual(1, RaiiClass::count);
+			RaiiClass::count = 0;
+		}
+
+		TEST_METHOD(TestCreate)
+		{
+			{
+				Holder<RaiiClass> obj(123);
+				Assert::AreEqual(123, obj->count);
+
+				obj.recreate(456);
+				Assert::AreEqual(456, obj->count);
+			}
+			RaiiClass::count = 0;
+			{
+				Holder<RaiiClass> obj;
+				Assert::AreEqual(0, obj->count);
+
+				obj.create(789);
+				Assert::AreEqual(789, obj->count);
+				
+			}
+			RaiiClass::count = 0;
+			{
+				Holder<RaiiClass> obj(Holder<void>::Default);
+				Assert::AreEqual(1, obj->count);
+			}
+			RaiiClass::count = 0;
+		}
+	};
+}
+
 namespace FileSystemsTest
 {
 	TEST_CLASS(PathTest)
