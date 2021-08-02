@@ -34,8 +34,13 @@ namespace ib {
         CloseHandle(file);
 
         if (perfer_dos) {
+#if __cpp_lib_starts_ends_with
             if (result.starts_with(LR"(\\?\)"))
+#else
+            if (result.rfind(LR"(\\?\)", 0) == 0)
+#endif
                 result = result.substr(4);
+
         }
 
         return wstring(result);
