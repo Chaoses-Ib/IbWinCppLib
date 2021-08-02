@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Common.hpp"
 #include "System.Memory.hpp"
 #include <type_traits>
