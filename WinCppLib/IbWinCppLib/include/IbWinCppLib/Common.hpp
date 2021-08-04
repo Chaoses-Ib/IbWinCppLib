@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <Windows.h>
 #include <cstdint>
+#include <assert.h>
 
 #include <string>
 #include <iterator>
@@ -110,6 +111,77 @@ namespace ib {
             destroy();
             new(buf) T(std::forward<Ts>(args)...);
         }
+
+        T* operator->() {
+            return &v;
+        }
+
+        const T* operator->() const {
+            return &v;
+        }
+
+        T& operator*() {
+            return v;
+        }
+
+        const T& operator*() const {
+            return v;
+        }
+    };
+
+    // Thread-unsafe.
+    template<typename T>
+    class HolderB{
+        union {
+            unsigned char buf[sizeof T];
+            T v;
+        };
+        bool b;
+
+    public:
+#pragma warning(suppress : 26495)  //MEMBER_UNINIT
+        HolderB() : b(false) {}
+        ~HolderB() {}
+
+        HolderB(Holder<void>::DefaultT) {
+            new(buf) T();
+            b = true;
+        }
+
+        template<typename... Ts>
+        HolderB(Ts&&... args) {
+            new(buf) T(std::forward<Ts>(args)...);
+            b = true;
+        }
+
+        bool has_created() const {
+            return b;
+        }
+
+        template<typename... Ts>
+        void create(Ts&&... args) {
+            assert(!b);
+            new(buf) T(std::forward<Ts>(args)...);
+            b = true;
+        }
+
+        // Do nothing if not created.
+        void destroy() {
+            if (b) {
+                v.~T();
+                b = false;
+            }
+        }
+
+        // Destroy only if created.
+        template<typename... Ts>
+        void recreate(Ts&&... args) {
+            destroy();
+            new(buf) T(std::forward<Ts>(args)...);
+            b = true;
+        }
+
+        // no assert(b) checks since accessing static members needed
 
         T* operator->() {
             return &v;

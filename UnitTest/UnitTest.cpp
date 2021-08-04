@@ -59,12 +59,78 @@ namespace CommonTest
 
 				obj.create(789);
 				Assert::AreEqual(789, obj->count);
-				
 			}
 			RaiiClass::count = 0;
 			{
 				Holder<RaiiClass> obj(Holder<void>::Default);
 				Assert::AreEqual(1, obj->count);
+			}
+			RaiiClass::count = 0;
+		}
+	};
+
+	TEST_CLASS(HolderBTest)
+	{
+	public:
+		struct RaiiClass {
+			static inline int count = 0;
+
+			RaiiClass() { count++; }
+			RaiiClass(int count) { this->count = count; }
+			void inc() { count++; }
+			void dec() { count--; }
+			~RaiiClass() { count--; }
+		};
+
+		TEST_METHOD(TestHoldB)
+		{
+			{
+				HolderB<RaiiClass> obj;
+				Assert::AreEqual(0, obj->count);
+				Assert::AreEqual(false, obj.has_created());
+
+				obj.create();
+				Assert::AreEqual(1, obj->count);
+				Assert::AreEqual(true, obj.has_created());
+
+				obj->inc();
+				Assert::AreEqual(2, obj->count);
+
+				obj.recreate();
+				Assert::AreEqual(2, obj->count);
+				Assert::AreEqual(true, obj.has_created());
+
+				obj.destroy();
+				Assert::AreEqual(1, obj->count);
+				Assert::AreEqual(false, obj.has_created());
+			}
+			Assert::AreEqual(1, RaiiClass::count);
+			RaiiClass::count = 0;
+		}
+
+		TEST_METHOD(TestCreate)
+		{
+			{
+				HolderB<RaiiClass> obj(123);
+				Assert::AreEqual(123, obj->count);
+				Assert::AreEqual(true, obj.has_created());
+
+				obj.recreate(456);
+				Assert::AreEqual(456, obj->count);
+			}
+			RaiiClass::count = 0;
+			{
+				HolderB<RaiiClass> obj;
+				Assert::AreEqual(0, obj->count);
+
+				obj.create(789);
+				Assert::AreEqual(789, obj->count);
+			}
+			RaiiClass::count = 0;
+			{
+				HolderB<RaiiClass> obj(Holder<void>::Default);
+				Assert::AreEqual(1, obj->count);
+				Assert::AreEqual(true, obj.has_created());
 			}
 			RaiiClass::count = 0;
 		}
