@@ -6,7 +6,6 @@
 #include <string>
 #include <iterator>
 #include <functional>
-#include <optional>
 
 //For forcing MSVC to evaluate a const expression at compile time
 #define CONSTEXPR(kv) ib::as_constexpr<decltype(kv),kv>
@@ -62,7 +61,6 @@ namespace ib {
     using QWORD = uint64_t;
 
     using std::function;
-    using std::optional, std::nullopt;
     using std::wstring;
 
 

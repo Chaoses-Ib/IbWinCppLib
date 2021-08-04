@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "Common.hpp"
 #include "System.Memory.hpp"
-#include <type_traits>
 
 namespace ib {
     struct Module {
@@ -11,6 +10,12 @@ namespace ib {
         };
 
         Module(HMODULE handle) : handle(handle) {};
+        Module() : Module(NULL) {}
+
+        // For operator bool and operator<=>
+        operator void* () {
+            return (void*)handle;
+        }
 
         wzstring GetPath() {
             wzstring pathbuf = wzstring::New(MAX_PATH);
@@ -26,26 +31,21 @@ namespace ib {
 
     class ModuleFactory {
     public:
-        //Doesn't increase reference count
-        static optional<Module> Find(cwzstring module_name) {
+        // Doesn't increase reference count
+        static Module Find(cwzstring module_name) {
             HMODULE h;
-            if (GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, module_name, &h))
-                return Module(h);
-            else
-                return {};
+            GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, module_name, &h);
+            return h;
         }
 
-        static optional<Module> Load(cwzstring module_name) {
-            auto h = LoadLibraryW(module_name);
-            return h ? optional(Module(h)) : nullopt;
+        static Module Load(cwzstring module_name) {
+            return LoadLibraryW(module_name);
         }
 
-        static optional<Module> CurrentProcess() {
+        static Module CurrentProcess() {
             HMODULE h;
-            if (GetModuleHandleExW(0, nullptr, &h))
-                return Module(h);
-            else
-                return {};
+            GetModuleHandleExW(0, nullptr, &h);
+            return h;
         }
     };
 }
