@@ -47,11 +47,11 @@ namespace ib {
             return p + sizeof(T) * num;
         }
 
-        Addr& operator+=(Offset offset) {
+        constexpr Addr& operator+=(Offset offset) {
             p += offset;
             return *this;
         }
-        Addr& operator-=(Offset offset) {
+        constexpr Addr& operator-=(Offset offset) {
             p -= offset;
             return *this;
         }
@@ -65,7 +65,7 @@ namespace ib {
 
 
         // Function as operator bool, operator<=>, operator delete
-        operator void* () const {
+        constexpr operator void* () const {
             return p;
         }
 
@@ -91,12 +91,14 @@ namespace ib {
             return *(T*)p;
         }
 
-        auto read() const {
+        constexpr auto read() const {
             return read_return_auto{ *this };
         }
     private:
         struct read_return_auto {
             const Addr& addr;
+
+            constexpr read_return_auto(const Addr& addr) : addr(addr) {}
 
             template<typename T>
             operator T() const {
@@ -135,7 +137,7 @@ namespace ib {
             static T NoCache = PAGE_NOCACHE;
             static T WriteCombine = PAGE_WRITECOMBINE;
 
-            static DWORD to_flProtect(ProtectFlags protect) {
+            constexpr static DWORD to_flProtect(ProtectFlags protect) {
                 ++protect;
                 if (protect & Execute) {
                     protect = (protect & ~0xFF) | (protect & 0xFF) << 4;
@@ -143,7 +145,7 @@ namespace ib {
                 return protect;
             }
 
-            static ProtectFlags to_protect(DWORD flProtect) {
+            constexpr static ProtectFlags to_protect(DWORD flProtect) {
                 --flProtect;
                 if (flProtect & 0x8) {
                     flProtect = flProtect >> 4 | Execute;

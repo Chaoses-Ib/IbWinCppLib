@@ -14,7 +14,7 @@ namespace ib {
 #pragma region MacroVariables
     namespace macros {
         //_DEBUG
-        const bool _debug =
+        constexpr bool _debug =
 #ifdef _DEBUG
             true;
 #else
@@ -22,7 +22,7 @@ namespace ib {
 #endif
 
         //NDEBUG
-        const bool ndebug =
+        constexpr bool ndebug =
 #ifdef NDEBUG
             true;
 #else
@@ -30,7 +30,7 @@ namespace ib {
 #endif
 
         //_WIN32
-        const bool _win32 =
+        constexpr bool _win32 =
 #ifdef _WIN32
             true;
 #else
@@ -38,7 +38,7 @@ namespace ib {
 #endif
 
         //_WIN64
-        const bool _win64 =
+        constexpr bool _win64 =
 #ifdef _WIN64
             true;
 #else
@@ -46,13 +46,13 @@ namespace ib {
 #endif
     }
 
-    const bool debug_runtime = macros::_debug;
-    const bool debug_assert = macros::ndebug;
+    constexpr bool debug_runtime = macros::_debug;
+    constexpr bool debug_assert = macros::ndebug;
 
     //32-bit Windows (x86 or 32-bit ARM)
-    const bool os_win32 = macros::_win32 && !macros::_win64;
+    constexpr bool os_win32 = macros::_win32 && !macros::_win64;
     //64-bit Windows (x64 or 64-bit ARM)
-    const bool os_win64 = macros::_win64;
+    constexpr bool os_win64 = macros::_win64;
 
 #pragma endregion
 
@@ -71,7 +71,7 @@ namespace ib {
     template<>
     class Holder<void> {
     public:
-        struct DefaultT {} static inline Default;
+        struct DefaultT {} static constexpr Default{};
     };
 
     template<typename T>
@@ -83,46 +83,46 @@ namespace ib {
 
     public:
 #pragma warning(suppress : 26495)  //MEMBER_UNINIT
-        Holder() {}
+        constexpr Holder() {}
         ~Holder() {}
 
-        Holder(Holder<void>::DefaultT) {
+        constexpr Holder(Holder<void>::DefaultT) {
             new(buf) T();
         }
 
         template<typename... Ts>
-        Holder(Ts&&... args) {
+        constexpr Holder(Ts&&... args) {
             new(buf) T(std::forward<Ts>(args)...);
         }
 
         template<typename... Ts>
-        void create(Ts&&... args) {
+        constexpr void create(Ts&&... args) {
             new(buf) T(std::forward<Ts>(args)...);
         }
 
-        void destroy() {
+        constexpr void destroy() {
             v.~T();
         }
 
         template<typename... Ts>
-        void recreate(Ts&&... args) {
+        constexpr void recreate(Ts&&... args) {
             destroy();
             new(buf) T(std::forward<Ts>(args)...);
         }
 
-        T* operator->() {
+        constexpr T* operator->() {
             return &v;
         }
 
-        const T* operator->() const {
+        constexpr const T* operator->() const {
             return &v;
         }
 
-        T& operator*() {
+        constexpr T& operator*() {
             return v;
         }
 
-        const T& operator*() const {
+        constexpr const T& operator*() const {
             return v;
         }
     };
@@ -138,33 +138,33 @@ namespace ib {
 
     public:
 #pragma warning(suppress : 26495)  //MEMBER_UNINIT
-        HolderB() : b(false) {}
+        constexpr HolderB() : b(false) {}
         ~HolderB() {}
 
-        HolderB(Holder<void>::DefaultT) {
+        constexpr HolderB(Holder<void>::DefaultT) {
             new(buf) T();
             b = true;
         }
 
         template<typename... Ts>
-        HolderB(Ts&&... args) {
+        constexpr HolderB(Ts&&... args) {
             new(buf) T(std::forward<Ts>(args)...);
             b = true;
         }
 
-        bool has_created() const {
+        constexpr bool has_created() const {
             return b;
         }
 
         template<typename... Ts>
-        void create(Ts&&... args) {
+        constexpr void create(Ts&&... args) {
             assert(!b);
             new(buf) T(std::forward<Ts>(args)...);
             b = true;
         }
 
         // Do nothing if not created.
-        void destroy() {
+        constexpr void destroy() {
             if (b) {
                 v.~T();
                 b = false;
@@ -173,7 +173,7 @@ namespace ib {
 
         // Destroy only if created.
         template<typename... Ts>
-        void recreate(Ts&&... args) {
+        constexpr void recreate(Ts&&... args) {
             destroy();
             new(buf) T(std::forward<Ts>(args)...);
             b = true;
@@ -181,19 +181,19 @@ namespace ib {
 
         // no assert(b) checks since accessing static members needed
 
-        T* operator->() {
+        constexpr T* operator->() {
             return &v;
         }
 
-        const T* operator->() const {
+        constexpr const T* operator->() const {
             return &v;
         }
 
-        T& operator*() {
+        constexpr T& operator*() {
             return v;
         }
 
-        const T& operator*() const {
+        constexpr const T& operator*() const {
             return v;
         }
     };
@@ -223,35 +223,37 @@ namespace ib {
     public:
         TChar* p;
 
-        basic_zstring(TChar* p) : p(p) {}
-        basic_zstring(TString s) {
+        constexpr basic_zstring(TChar* p) : p(p) {}
+        constexpr basic_zstring(TString s) {
             static_assert(std::is_const_v<TChar>, "ib::basic_zstring: Can't convert TString to non-const TChar*");
             p = s.c_str();
         }
 
-        static basic_zstring New(size_t size) {
+        constexpr static basic_zstring New(size_t size) {
             return new TChar[size];
         }
-        static basic_zstring New(TString s) {
+        constexpr static basic_zstring New(TString s) {
             auto p = new TChar[s.size() + 1];
-            memcpy(p, s.c_str(), (s.size() + 1) * sizeof TChar);
+            //memcpy(p, s.c_str(), (s.size() + 1) * sizeof TChar);
+            std::copy(s.begin(), s.end(), p);
+            p[s.size()] = static_cast<TChar>(0);
             return p;
         }
 
         //Set to nullptr
-        void Delete() {
+        constexpr void Delete() {
             delete[] p;
             p = nullptr;
         }
 
-        operator TChar* () {
+        constexpr operator TChar* () {
             return p;
         }
-        operator TString () {
+        constexpr operator TString () {
             return p;
         }
 
-        operator bool() {
+        constexpr operator bool() {
             return p;
         }
     };
@@ -264,10 +266,10 @@ namespace ib {
     class auto_cast {
         T value_;
     public:
-        auto_cast(T value) : value_(value) {};
+        constexpr auto_cast(T value) : value_(value) {};
 
         template<typename T2>
-        operator T2() {
+        constexpr operator T2() {
             return T2(value_);
         }
     };
@@ -278,9 +280,9 @@ namespace ib {
     class auto_##CAST {  \
         T value_;  \
     public:  \
-        auto_##CAST(T value) : value_(value) {};  \
+        constexpr auto_##CAST(T value) : value_(value) {};  \
         template<typename T2>  \
-        operator T2() {  \
+        constexpr operator T2() {  \
             return CAST<T2>(value_);  \
         }  \
     };

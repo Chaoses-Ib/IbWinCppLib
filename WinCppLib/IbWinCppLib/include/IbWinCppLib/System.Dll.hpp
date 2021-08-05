@@ -9,11 +9,11 @@ namespace ib {
             Addr base;
         };
 
-        Module(HMODULE handle) : handle(handle) {};
-        Module() : Module(NULL) {}
+        constexpr Module(HMODULE handle) : handle(handle) {};
+        constexpr Module() : Module(NULL) {}
 
         // For operator bool and operator<=>
-        operator void* () {
+        constexpr operator void* () {
             return (void*)handle;
         }
 
