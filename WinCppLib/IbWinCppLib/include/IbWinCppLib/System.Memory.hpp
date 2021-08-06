@@ -126,37 +126,49 @@ namespace ib {
         class Protect {
         public:
             using T = const ProtectFlags;
-            static T NoAccess = PAGE_NOACCESS - 1;  // false (otherwise true)
+            /// <summary>
+            /// Converted to false (others are true).
+            /// Cannot be used with other flags.
+            /// Not supported by CreateFileMapping.
+            /// </summary>
+            static T NoAccess = PAGE_NOACCESS - 1;
             static T Read = PAGE_READONLY - 1;
-            static T Write = PAGE_READWRITE - 1;  // Include Read
-            static T WriteCopy = PAGE_WRITECOPY - 1;  // Include Read and Write
+            static T Write = PAGE_READWRITE - 1;  // Includes Read
+            static T WriteCopy = PAGE_WRITECOPY - 1;  // Includes Read and Write. Not supported by VirtualAlloc(Ex).
 
-            static T Execute = PAGE_EXECUTE;
+            static T Execute = PAGE_EXECUTE;  // Not supported by CreateFileMapping if used without Read, Write or WriteCopy.
 
-            static T Guard = PAGE_GUARD;
-            static T NoCache = PAGE_NOCACHE;
-            static T WriteCombine = PAGE_WRITECOMBINE;
+            static T Guard = PAGE_GUARD;  // Cannot be used with NoAccess, NoCache or WriteCombine
+            static T NoCache = PAGE_NOCACHE;  // Cannot be used with NoAccess, Guard or WriteCombine
+            static T WriteCombine = PAGE_WRITECOMBINE;  // Cannot be used with NoAccess, Guard or NoCache
+
+            static T Targets_Invalid = PAGE_TARGETS_INVALID;  // Not supported by VirtualProtect or CreateFileMapping. Equals to Targets_NoUpdate.
+            static T Targets_NoUpdate = PAGE_TARGETS_NO_UPDATE;  // Supported by VirtualProtect. Equals to Targets_Invalid.
 
             constexpr static DWORD to_flProtect(ProtectFlags protect) {
-                ++protect;
-                if (protect & Execute) {
-                    protect = (protect & ~0xFF) | (protect & 0xFF) << 4;
+                DWORD h = protect & ~0xFF;
+                Byte l = (Byte)protect;
+                ++l;
+                if (l & Execute) {
+                    l = l << 4;
                 }
-                return protect;
+                return h | l;
             }
 
             constexpr static ProtectFlags to_protect(DWORD flProtect) {
-                --flProtect;
-                if (flProtect & 0x8) {
-                    flProtect = flProtect >> 4 | Execute;
+                DWORD h = flProtect & ~0xFF;
+                Byte l = (Byte)flProtect;
+                --l;
+                if (l & 0x8) {
+                    l = l >> 4 | Execute;
                 }
-                return flProtect;
+                return h | l;
             }
         };
 
         // Example: change_protect(addr, 5, Protect::Write | Protect::Execute);
         inline ProtectFlags change_protect(Addr addr, size_t size, ProtectFlags protect) {
-            DWORD flProtect = PAGE_NOACCESS;
+            DWORD flProtect;
             VirtualProtect(addr, size, Protect::to_flProtect(protect), &flProtect);
             return Protect::to_protect(flProtect);
         }

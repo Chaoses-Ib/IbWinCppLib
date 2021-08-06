@@ -232,4 +232,44 @@ namespace MemoryTest
 			Assert::AreEqual<void*>(p[sizeof uintptr_t], &a);
 		}
 	};
+
+	TEST_CLASS(ProtectTest)
+	{
+	public:
+		TEST_METHOD(TestToProtect)
+		{
+			using namespace mem;
+			Assert::AreEqual(Protect::NoAccess, Protect::to_protect(PAGE_NOACCESS));
+			Assert::AreEqual(Protect::Read, Protect::to_protect(PAGE_READONLY));
+			Assert::AreEqual(Protect::Write, Protect::to_protect(PAGE_READWRITE));
+			Assert::AreEqual(Protect::WriteCopy, Protect::to_protect(PAGE_WRITECOPY));
+
+			Assert::AreEqual(Protect::Execute, Protect::to_protect(PAGE_EXECUTE));
+			Assert::AreEqual(Protect::Execute | Protect::Read, Protect::to_protect(PAGE_EXECUTE_READ));
+			Assert::AreEqual(Protect::Execute | Protect::Write, Protect::to_protect(PAGE_EXECUTE_READWRITE));
+			Assert::AreEqual(Protect::Execute | Protect::WriteCopy, Protect::to_protect(PAGE_EXECUTE_WRITECOPY));
+
+			Assert::AreEqual(Protect::Execute | Protect::Guard, Protect::to_protect(PAGE_EXECUTE | PAGE_GUARD));
+			Assert::AreEqual(Protect::Execute | Protect::Read | Protect::NoCache, Protect::to_protect(PAGE_EXECUTE_READ | PAGE_NOCACHE));
+			Assert::AreEqual(Protect::Execute | Protect::Write | Protect::WriteCombine, Protect::to_protect(PAGE_EXECUTE_READWRITE | PAGE_WRITECOMBINE));
+		}
+
+		TEST_METHOD(TestToFlProtect)
+		{
+			using namespace mem;
+			Assert::AreEqual<DWORD>(PAGE_NOACCESS, Protect::to_flProtect(Protect::NoAccess));
+			Assert::AreEqual<DWORD>(PAGE_READONLY, Protect::to_flProtect(Protect::Read));
+			Assert::AreEqual<DWORD>(PAGE_READWRITE, Protect::to_flProtect(Protect::Write));
+			Assert::AreEqual<DWORD>(PAGE_WRITECOPY, Protect::to_flProtect(Protect::WriteCopy));
+
+			Assert::AreEqual<DWORD>(PAGE_EXECUTE, Protect::to_flProtect(Protect::Execute));
+			Assert::AreEqual<DWORD>(PAGE_EXECUTE_READ, Protect::to_flProtect(Protect::Execute | Protect::Read));
+			Assert::AreEqual<DWORD>(PAGE_EXECUTE_READWRITE, Protect::to_flProtect(Protect::Execute | Protect::Write));
+			Assert::AreEqual<DWORD>(PAGE_EXECUTE_WRITECOPY, Protect::to_flProtect(Protect::Execute | Protect::WriteCopy));
+
+			Assert::AreEqual<DWORD>(PAGE_EXECUTE | PAGE_GUARD, Protect::to_flProtect(Protect::Execute | Protect::Guard));
+			Assert::AreEqual<DWORD>(PAGE_EXECUTE_READ | PAGE_NOCACHE, Protect::to_flProtect(Protect::Execute | Protect::Read | Protect::NoCache));
+			Assert::AreEqual<DWORD>(PAGE_EXECUTE_READWRITE | PAGE_WRITECOMBINE, Protect::to_flProtect(Protect::Execute | Protect::Write | Protect::WriteCombine));
+		}
+	};
 }
