@@ -9,7 +9,7 @@ using namespace ib;
 
 namespace DiagnosticsTest
 {
-	TEST_CLASS(DebugOStreamTest)
+	TEST_CLASS(DebugOStreamTest_CHECK)
 	{
 	public:
 		TEST_METHOD(TestDebugOStream_CHECK)
@@ -28,6 +28,39 @@ namespace DiagnosticsTest
 				std::wstreambuf* wcout_buf = wcout.rdbuf();
 
 				DebugStreamBuf buf;
+				wcout.rdbuf(&buf);
+				wcout << L"Hello Bug! " << 3 << std::endl;
+
+				wcout.rdbuf(wcout_buf);
+			}
+			Logger::WriteMessage(L"#CHECK");
+		}
+
+		TEST_METHOD(TestLinePrefix_CHECK) {
+			{
+				DebugOStream dout(L"Prefix: ");
+				dout << L"Hello Bug! " << 1 << std::endl;
+				dout << L"Hello Bug! " << 2 << std::endl;
+				dout << L"Hello Bug! " << 3 << std::endl;
+			}
+			{
+				DebugOStream dout(std::wstring_view(L"Prefix: "));
+				dout << L"Hello Bug! " << 1 << std::endl;
+			}
+			{
+				DebugOStream dout(std::wstring(L"Prefix: "));
+				dout << L"Hello Bug! " << 1 << std::endl;
+			}
+			{
+				DebugStreamBuf buf(L"Prefix: ");
+				std::wostream dout(&buf);
+				dout << L"Hello Bug! " << 2 << std::endl;
+			}
+			{
+				using std::wcout;
+				std::wstreambuf* wcout_buf = wcout.rdbuf();
+
+				DebugStreamBuf buf(L"Prefix: ");
 				wcout.rdbuf(&buf);
 				wcout << L"Hello Bug! " << 3 << std::endl;
 

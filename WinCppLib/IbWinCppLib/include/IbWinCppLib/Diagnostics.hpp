@@ -15,16 +15,32 @@ namespace ib {
     class DebugStreamBuf : public std::basic_stringbuf<CharT, TraitsT>
     {
     public:
+        using StringT = std::basic_string<CharT, TraitsT>;
+        using StringViewT = std::basic_string_view<CharT, TraitsT>;
+
+        DebugStreamBuf() : line_prefix() {}
+        DebugStreamBuf(StringT&& line_prefix) : line_prefix(std::move(line_prefix)) {}
+        DebugStreamBuf(const CharT* line_prefix) : DebugStreamBuf(StringT(line_prefix)) {}
+        DebugStreamBuf(StringViewT line_prefix) : DebugStreamBuf(StringT(line_prefix)) {}
+
         virtual ~DebugStreamBuf() {
             sync();
         }
     protected:
         int sync() {
+            StringT buf = this->str();
+            if (buf.empty())  //needed
+                return 0;
+            if (!line_prefix.empty()) {
+                buf = line_prefix + buf;
+            }
+            const CharT* str = buf.c_str();
+
             if constexpr (std::is_same_v<CharT, wchar>) {
-                OutputDebugStringW(this->str().c_str());
+                OutputDebugStringW(str);
             }
             else if constexpr (std::is_same_v<CharT, char>) {
-                OutputDebugStringA(this->str().c_str());
+                OutputDebugStringA(str);
             }
             else {
                 static_assert(false, "DebugStreamBuf: unsupported CharT");
@@ -32,13 +48,22 @@ namespace ib {
             this->str(std::basic_string<CharT>());
             return 0;
         }
+    private:
+        const StringT line_prefix;
     };
 
     template <typename CharT = wchar, typename TraitsT = std::char_traits<CharT>>
     class DebugOStream : public std::basic_ostream<CharT, TraitsT>
     {
     public:
+        using StringT = std::basic_string<CharT, TraitsT>;
+        using StringViewT = std::basic_string_view<CharT, TraitsT>;
+
         DebugOStream() : std::basic_ostream<CharT, TraitsT>(new DebugStreamBuf<CharT, TraitsT>()) {}
+        DebugOStream(StringT&& line_prefix) : std::basic_ostream<CharT, TraitsT>(new DebugStreamBuf<CharT, TraitsT>(std::move(line_prefix))) {}
+        DebugOStream(const CharT* line_prefix) : DebugOStream(StringT(line_prefix)) {}
+        DebugOStream(StringViewT line_prefix) : DebugOStream(StringT(line_prefix)) {}
+
         ~DebugOStream() {
             delete this->rdbuf();
         }
