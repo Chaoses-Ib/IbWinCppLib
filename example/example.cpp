@@ -1,11 +1,7 @@
 ﻿#include <iostream>
-#include <IbWinCpp/WinCppLib.hpp>
-
-using namespace std;
-using namespace ib;
+#include <IbWinCpp/WinCpp.hpp>
 
 int main()
 {
-    //auto a = wzstring(L"abc"s);
-    cout << (void*)ModuleFactory::Load(L"ntdll.dll").base << endl;
+    std::cout << ib::ModuleFactory::Load(L"ntdll.dll").base.p << std::endl;
 }

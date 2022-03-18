@@ -1,15 +1,7 @@
-﻿#pragma once
-#include "Common.hpp"
-#include <filesystem>
+#include <IbWinCpp/FileSystem.hpp>
 
 namespace ib {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="perfer_dos">The result is perferred in DOS path format (C:\Path) to device path format (\\?\C:\Path).</param>
-    /// <returns></returns>
-    inline wstring get_realpath(std::wstring_view path, bool perfer_dos = true) {
+    std::wstring path_to_realpath(std::wstring_view path, bool perfer_dos) {
         HANDLE file = CreateFileW(
             path.data(),
             0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr,
@@ -19,8 +11,8 @@ namespace ib {
             return {};
 
         wchar buf[MAX_PATH];
-        DWORD len = GetFinalPathNameByHandleW(file, buf, std::size(buf), 0);
-        
+        DWORD len = GetFinalPathNameByHandleW(file, buf, static_cast<DWORD>(std::size(buf)), 0);
+
         std::wstring_view result;
         std::unique_ptr<wchar[]> buf2;
         if (len <= std::size(buf)) {
@@ -43,6 +35,6 @@ namespace ib {
 
         }
 
-        return wstring(result);
+        return std::wstring(result);
     }
 }

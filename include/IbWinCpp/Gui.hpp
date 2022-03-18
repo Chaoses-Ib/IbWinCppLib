@@ -1,9 +1,10 @@
 ﻿#pragma once
 #include "Common.hpp"
+#include "Cpp/iterator.hpp"
 
 namespace ib {
-    //An iterator for ::FindWindowExW
-    class FindWindowEx_i : public iterator<std::input_iterator_tag, HWND, size_t, void, void> {
+    /// @brief An iterator for FindWindowExW
+    class FindWindowEx_i : public iterator<std::input_iterator_tag, HWND, size, void, void> {
         using iterator = FindWindowEx_i;
 
         HWND parent;
