@@ -36,7 +36,7 @@ namespace ib {
             OutputDebugStringA(str);
         }
         else {
-            static_assert(false, "ib::DebugStreamBuf: unsupported CharT");
+            static_assert(/* false */ !sizeof(CharT*), "ib::DebugStreamBuf: unsupported CharT");
         }
         this->str(std::basic_string<CharT>());
         return 0;

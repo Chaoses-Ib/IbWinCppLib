@@ -4,7 +4,7 @@
 #include "Cpp/constexpr.hpp"
 #include "Cpp/holder.hpp"
 
-#include "Diagnostics.hpp"
+#include "Diagnostic.hpp"
 #include "FileSystem.hpp"
 #include "Gui.hpp"
 #include "Memory.hpp"

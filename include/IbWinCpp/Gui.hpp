@@ -9,12 +9,12 @@ namespace ib {
 
         HWND parent;
         HWND current;
-        cwzstring classname;
-        cwzstring title;
-        constexpr FindWindowEx_i(HWND parent, HWND current, cwzstring classname, cwzstring title)
+        wzstring classname;
+        wzstring title;
+        constexpr FindWindowEx_i(HWND parent, HWND current, wzstring classname, wzstring title)
             : parent(parent), current(current), classname(classname), title(title) {}
     public:
-        FindWindowEx_i(HWND parent = 0, cwzstring classname = nullptr, cwzstring title = nullptr)
+        FindWindowEx_i(HWND parent = 0, wzstring classname = nullptr, wzstring title = nullptr)
             : FindWindowEx_i(parent, FindWindowExW(parent, 0, classname, title), classname, title) {}
         constexpr FindWindowEx_i(const iterator& i) : FindWindowEx_i(i.parent, i.current, i.classname, i.title) {}
 

@@ -57,4 +57,11 @@ TEST_CASE("DebugOStream") {
 			wcout.rdbuf(wcout_buf);
 		}
 	}
+
+	SECTION("test line prefix with a wrapper function") {
+		auto DebugOStream = []() -> ib::DebugOStream<> {
+			return { L"Line prefix: " };
+		};
+		DebugOStream() << L"** TEST MESSAGE ** " << 1 << std::endl;
+	}
 }
