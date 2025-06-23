@@ -66,7 +66,7 @@ TEST_CASE("Addr") {
 		uintptr_t b[2] = { 0, (uintptr_t)&a };
 		p = &b;
 		CHECK(p[0] == nullptr);
-		CHECK(p[sizeof uintptr_t] == &a);
+		CHECK(p[sizeof(uintptr_t)] == &a);
 	}
 }
 

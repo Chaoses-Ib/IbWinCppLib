@@ -16,7 +16,7 @@ namespace ib {
     template<typename T>
     class Holder {
         union {
-            unsigned char buf[sizeof T];
+            unsigned char buf[sizeof(T)];
             T v;
         };
 
@@ -71,7 +71,7 @@ namespace ib {
     template<typename T>
     class HolderB {
         union {
-            unsigned char buf[sizeof T];
+            unsigned char buf[sizeof(T)];
             T v;
         };
         bool b;
